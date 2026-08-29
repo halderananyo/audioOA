@@ -6,6 +6,7 @@
     Mystery: "var(--c-mystery)"
   };
 
+  let BOOKS = [];
   let activeCategory = "All";
   let searchTerm = "";
 
@@ -21,7 +22,7 @@
 
   function escapeHtml(s) {
     const d = document.createElement("div");
-    d.textContent = s;
+    d.textContent = s || "";
     return d.innerHTML;
   }
 
@@ -79,12 +80,21 @@
   function render() {
     renderDial();
 
+    if (BOOKS.length === 0) {
+      gridEl.innerHTML = `
+        <div class="empty" style="grid-column:1/-1">
+          <h3>The shelves are bare</h3>
+          <p>No books yet — add one from the admin page.</p>
+        </div>`;
+      return;
+    }
+
     let filtered = BOOKS.filter((b) => {
       const matchesCat = activeCategory === "All" || b.category === activeCategory;
       const matchesSearch =
         !searchTerm ||
-        b.title.toLowerCase().includes(searchTerm) ||
-        b.author.toLowerCase().includes(searchTerm);
+        (b.title || "").toLowerCase().includes(searchTerm) ||
+        (b.author || "").toLowerCase().includes(searchTerm);
       return matchesCat && matchesSearch;
     });
 
@@ -103,13 +113,13 @@
   }
 
   function openPlayer(book) {
-    playerFrame.innerHTML = `<iframe src="https://www.youtube.com/embed/${book.videoId}?autoplay=1&rel=0" title="${escapeHtml(
+    playerFrame.innerHTML = `<iframe src="https://www.youtube.com/embed/${book.video_id}?autoplay=1&rel=0" title="${escapeHtml(
       book.title
     )}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     document.getElementById("playerTitle").textContent = book.title;
     document.getElementById("playerMeta").textContent =
-      `${book.author} · Narrated by ${book.narrator} · ${book.runtime}`;
-    document.getElementById("playerBlurb").textContent = book.blurb;
+      `${book.author} · Narrated by ${book.narrator || book.author} · ${book.runtime || ""}`;
+    document.getElementById("playerBlurb").textContent = book.blurb || "";
     overlay.classList.add("show");
   }
 
@@ -131,5 +141,21 @@
     render();
   });
 
-  render();
+  async function loadBooks() {
+    gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>Tuning in…</h3><p>Loading the shelf.</p></div>`;
+    const { data, error } = await supabaseClient
+      .from("books")
+      .select("*")
+      .order("title", { ascending: true });
+
+    if (error) {
+      gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>Couldn't load the shelf</h3><p>${escapeHtml(error.message)}</p></div>`;
+      return;
+    }
+
+    BOOKS = data || [];
+    render();
+  }
+
+  loadBooks();
 })();
