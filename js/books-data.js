@@ -67,5 +67,16 @@ const BOOKS = [
     year: "2020",
     blurb: "A love story stretched across two decades, told against the backdrop of a changing city.",
     videoId: "p8wEiWrIx6w"
+  },
+  {
+    id: "b_mtew945v",
+    title: "নরওয়েজিয়ান উড । Norwegian Wood",
+    author: "haruki murakami",
+    category: "love",
+    narrator: "haruki murakami",
+    runtime: "1h 39min",
+    year: "",
+    blurb: "",
+    videoId: "qwZ7UzCUvOs"
   }
 ];
