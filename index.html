@@ -73,7 +73,9 @@
 
 <footer>Nightband — a small audiobook shelf. Playback powered by YouTube.</footer>
 
-<script src="js/books-data.js"></script>
+<script>
+  document.write('<script src="js/books-data.js?v=' + Date.now() + '"><\/script>');
+</script>
 <script src="js/app.js"></script>
 </body>
 </html>
