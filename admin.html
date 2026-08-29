@@ -100,7 +100,9 @@
 
 <footer>Nightband — a small audiobook shelf.</footer>
 
-<script src="js/books-data.js"></script>
+<script>
+  document.write('<script src="js/books-data.js?v=' + Date.now() + '"><\/script>');
+</script>
 <script>
 (function(){
   function extractYouTubeId(raw){
