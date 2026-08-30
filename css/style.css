@@ -469,4 +469,16 @@ footer{
 
   .book-wrap{padding:16px 16px 12px;}
   .suggest-wrap{padding:0 16px 90px;}
+
+  /* compact hero so the shelf shows up sooner without scrolling */
+  .hero{padding:22px 20px 14px;}
+  .hero .eyebrow{font-size:10px; letter-spacing:0.22em;}
+  .hero .eyebrow::before, .hero .eyebrow::after{width:20px;}
+  .hero h1{font-size:24px; margin:10px 0 8px; line-height:1.15;}
+  .hero p{font-size:12.5px; max-width:300px; margin:0 auto;}
+  .waveform{height:16px; margin:14px auto 0; gap:2px;}
+  .waveform span{width:2px;}
+  .dial-wrap{margin-top:0;}
+  .dial{padding:2px 0 8px;}
+  .section-label{margin:14px 0 12px;}
 }
