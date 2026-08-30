@@ -476,7 +476,7 @@ footer{
   .hero .eyebrow::before, .hero .eyebrow::after{width:20px;}
   .hero h1{font-size:24px; margin:10px 0 8px; line-height:1.15;}
   .hero p{font-size:12.5px; max-width:300px; margin:0 auto;}
-  .waveform{height:16px; margin:22px auto 22px; gap:2px;}
+  .waveform{height:16px; margin:22px auto 10px; gap:2px;}
   .waveform span{width:2px;}
   .dial-wrap{margin-top:0;}
   .dial{padding:2px 0 8px;}
