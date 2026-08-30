@@ -41,6 +41,10 @@ window.Nightband = (function () {
       ? "background:#0A0D14;"
       : `background:linear-gradient(160deg, ${color}, #05070c 130%);`;
 
+    const authorLine = book.narrator && book.narrator !== book.author
+      ? `${escapeHtml(book.author)} <span style="opacity:0.5">|</span> ${escapeHtml(book.narrator)}`
+      : escapeHtml(book.author);
+
     card.innerHTML = `
       <div class="poster" style="${posterBg}">
         ${coverLayer}
@@ -52,7 +56,7 @@ window.Nightband = (function () {
         <div class="runtime">${escapeHtml(book.runtime)} &middot; ${escapeHtml(book.year)}</div>
       </div>
       <div class="poster-title">${escapeHtml(book.title)}</div>
-      <div class="poster-author">${escapeHtml(book.author)}</div>
+      <div class="poster-author">${authorLine}</div>
     `;
     const go = () => { location.href = `book.html?id=${encodeURIComponent(book.id)}`; };
     card.addEventListener("click", go);
