@@ -46,7 +46,8 @@
       const matchesSearch =
         !searchTerm ||
         (b.title || "").toLowerCase().includes(searchTerm) ||
-        (b.author || "").toLowerCase().includes(searchTerm);
+        (b.author || "").toLowerCase().includes(searchTerm) ||
+        (b.narrator || "").toLowerCase().includes(searchTerm);
       return matchesCat && matchesSearch;
     });
 
@@ -67,6 +68,13 @@
   searchInput.addEventListener("input", (e) => {
     searchTerm = e.target.value.trim().toLowerCase();
     render();
+  });
+
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchInput.blur();
+    }
   });
 
   async function loadBooks() {
