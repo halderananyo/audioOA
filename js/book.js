@@ -6,17 +6,28 @@
   const params = new URLSearchParams(location.search);
   const bookId = params.get("id");
 
-  function renderBook(book) {
+  let ytPlayer = null;
+
+  // --- Load the YouTube IFrame API script once ---
+  function loadYouTubeApi() {
+    return new Promise((resolve) => {
+      if (window.YT && window.YT.Player) {
+        resolve();
+        return;
+      }
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+      window.onYouTubeIframeAPIReady = () => resolve();
+    });
+  }
+
+  function renderBookShell(book) {
     document.title = `${book.title} — Nightband`;
 
     bookContent.innerHTML = `
       <div class="video-wrap">
-        <iframe
-          src="https://www.youtube.com/embed/${book.video_id}?autoplay=1&rel=0"
-          title="${Nightband.escapeHtml(book.title)}"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
+        <div id="ytPlayer"></div>
       </div>
       <div class="book-info">
         <span class="cat-pill-lg">${Nightband.escapeHtml(book.category)}</span>
@@ -25,6 +36,57 @@
         <p class="blurb">${Nightband.escapeHtml(book.blurb || "")}</p>
       </div>
     `;
+  }
+
+  function setupMediaSession(book) {
+    if (!("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: book.title,
+      artist: book.author,
+      album: "Nightband",
+      artwork: book.cover_url
+        ? [{ src: book.cover_url, sizes: "512x512", type: "image/jpeg" }]
+        : []
+    });
+
+    navigator.mediaSession.setActionHandler("play", () => ytPlayer && ytPlayer.playVideo());
+    navigator.mediaSession.setActionHandler("pause", () => ytPlayer && ytPlayer.pauseVideo());
+    navigator.mediaSession.setActionHandler("seekbackward", () => {
+      if (!ytPlayer) return;
+      ytPlayer.seekTo(Math.max(0, ytPlayer.getCurrentTime() - 10), true);
+    });
+    navigator.mediaSession.setActionHandler("seekforward", () => {
+      if (!ytPlayer) return;
+      ytPlayer.seekTo(ytPlayer.getCurrentTime() + 10, true);
+    });
+  }
+
+  function onPlayerStateChange(event) {
+    if (!("mediaSession" in navigator)) return;
+    if (event.data === YT.PlayerState.PLAYING) {
+      navigator.mediaSession.playbackState = "playing";
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      navigator.mediaSession.playbackState = "paused";
+    }
+  }
+
+  async function createPlayer(book) {
+    await loadYouTubeApi();
+    ytPlayer = new YT.Player("ytPlayer", {
+      videoId: book.video_id,
+      width: "100%",
+      height: "100%",
+      playerVars: {
+        autoplay: 1,
+        rel: 0,
+        playsinline: 1
+      },
+      events: {
+        onReady: () => setupMediaSession(book),
+        onStateChange: onPlayerStateChange
+      }
+    });
   }
 
   async function loadSuggestions(book) {
@@ -56,7 +118,8 @@
       return;
     }
 
-    renderBook(data);
+    renderBookShell(data);
+    createPlayer(data);
     loadSuggestions(data);
   }
 
