@@ -89,14 +89,79 @@
   searchInput.addEventListener("input", (e) => {
     searchTerm = e.target.value.trim().toLowerCase();
     render();
+    renderSearchResults();
   });
 
   searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       searchInput.blur();
+      hideSearchResults();
+    }
+    if (e.key === "Escape") {
+      hideSearchResults();
     }
   });
+
+  searchInput.addEventListener("focus", () => {
+    if (searchTerm) renderSearchResults();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-wrap")) hideSearchResults();
+  });
+
+  const searchResultsEl = document.getElementById("searchResults");
+
+  function hideSearchResults() {
+    searchResultsEl.classList.remove("show");
+  }
+
+  function resultRow(book) {
+    const thumb = book.cover_url
+      ? `<img src="${Nightband.escapeHtml(book.cover_url)}" alt="">`
+      : "";
+    const bg = book.cover_url ? "" : `background:linear-gradient(160deg, ${Nightband.categoryColor(book.category)}, #05070c 130%);`;
+
+    const row = document.createElement("div");
+    row.className = "result-row";
+    row.innerHTML = `
+      <div class="result-thumb" style="${bg}">${thumb}</div>
+      <div>
+        <div class="result-title">${Nightband.escapeHtml(book.title)}</div>
+        <div class="result-sub">${Nightband.escapeHtml(book.author)} · ${Nightband.escapeHtml(book.category)}${book.year ? " · " + Nightband.escapeHtml(book.year) : ""}</div>
+      </div>
+    `;
+    row.addEventListener("click", () => {
+      location.href = `book.html?id=${encodeURIComponent(book.id)}`;
+    });
+    return row;
+  }
+
+  function renderSearchResults() {
+    if (!searchTerm) {
+      hideSearchResults();
+      return;
+    }
+
+    const matches = BOOKS.filter((b) => {
+      return (
+        (b.title || "").toLowerCase().includes(searchTerm) ||
+        (b.author || "").toLowerCase().includes(searchTerm) ||
+        (b.narrator || "").toLowerCase().includes(searchTerm)
+      );
+    }).slice(0, 8);
+
+    searchResultsEl.innerHTML = "";
+
+    if (matches.length === 0) {
+      searchResultsEl.innerHTML = `<div class="result-empty">No matches for "${Nightband.escapeHtml(searchInput.value)}"</div>`;
+    } else {
+      matches.forEach((b) => searchResultsEl.appendChild(resultRow(b)));
+    }
+
+    searchResultsEl.classList.add("show");
+  }
 
   async function loadBooks() {
     gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>Tuning in…</h3><p>Loading the shelf.</p></div>`;
