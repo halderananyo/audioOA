@@ -5,6 +5,15 @@
 
   const gridEl = document.getElementById("grid");
   const dialEl = document.getElementById("dial");
+  dialEl.addEventListener(
+    "wheel",
+    (e) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      dialEl.scrollLeft += e.deltaY;
+    },
+    { passive: false }
+  );
   const searchInput = document.getElementById("searchInput");
 
   function renderDial() {
