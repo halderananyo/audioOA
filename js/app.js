@@ -5,15 +5,27 @@
 
   const gridEl = document.getElementById("grid");
   const dialEl = document.getElementById("dial");
-  dialEl.addEventListener(
-    "wheel",
-    (e) => {
-      if (e.deltaY === 0) return;
-      e.preventDefault();
-      dialEl.scrollLeft += e.deltaY;
-    },
-    { passive: false }
-  );
+
+  // Click-and-drag horizontal scrolling for the category bar (desktop mouse users)
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartScroll = 0;
+
+  dialEl.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    dialEl.classList.add("dragging");
+    dragStartX = e.pageX;
+    dragStartScroll = dialEl.scrollLeft;
+  });
+  window.addEventListener("mouseup", () => {
+    isDragging = false;
+    dialEl.classList.remove("dragging");
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    dialEl.scrollLeft = dragStartScroll - (e.pageX - dragStartX);
+  });
   const searchInput = document.getElementById("searchInput");
 
   function renderDial() {
